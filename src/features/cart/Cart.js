@@ -77,8 +77,12 @@ export default function Cart() {
                           <h3>
                             <a href={item.product?.id}>{item.product?.title}</a>
                           </h3>
-                          <p className="ml-4">
-                            {/* Rs.{discountedPrice(item.product)} */}
+
+                          <p className="ml-4 flex gap-1 items-center">
+                            <p className="text-sm text-gray-600 line-through">
+                              Rs.{item.product.price}
+                            </p>
+                            Rs.{discountedPrice(item.product)}
                           </p>
                         </div>
                         <p className="mt-1 text-sm text-gray-500">
@@ -180,7 +184,7 @@ export default function Cart() {
             <div className="mt-6">
               <Link
                 to="/checkout"
-                className="flex items-center justify-center rounded-md border border-transparent bg-blue-800 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700"
+                className="flex items-center justify-center rounded-md border border-transparent bg-custom-gradient px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80"
               >
                 Checkout
               </Link>

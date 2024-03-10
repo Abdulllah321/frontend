@@ -19,7 +19,10 @@ function OrderSuccessPage() {
   return (
     <>
       {!params.id && <Navigate to="/" replace={true}></Navigate>}
-      <main className="grid min-h-full place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8">
+      <main
+        className="grid place-items-center bg-white px-6 py-24 sm:py-32 lg:px-8 w-max absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-max rounded-sm"
+        style={{ boxShadow: "rgba(0, 0, 0, 0.24) 0px 3px 8px" }}
+      >
         <div className="text-center">
           <motion.div
             initial={{ opacity: 0, scale: 0 }}

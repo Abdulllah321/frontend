@@ -180,7 +180,15 @@ export function deleteRating(ratingId) {
   });
 }
 
-export function fetchProductsByFilters(filter, sort, pagination, admin, min, max, rating) {
+export function fetchProductsByFilters(
+  filter,
+  sort,
+  pagination,
+  admin,
+  min,
+  max,
+  rating
+) {
   let queryString = "";
   const filterKeys = Object.keys(filter);
 
@@ -204,14 +212,14 @@ export function fetchProductsByFilters(filter, sort, pagination, admin, min, max
     queryString += `admin=true&`;
   }
 
-  if(min){
+  if (min) {
     queryString += `minPrice=${min}&`;
   }
 
-  if(max){
+  if (max) {
     queryString += `maxPrice=${max}&`;
   }
-  if(rating) {
+  if (rating) {
     queryString += `rating=${rating}&`;
   }
 
@@ -493,5 +501,64 @@ export function searchSuggestion(search) {
     }
     const data = await response.json();
     resolve({ data });
+  });
+}
+
+// Slides
+
+export function fetchSlides() {
+  return new Promise(async (resolve) => {
+    const response = await fetch("/slides");
+    if (response.status === 401) {
+      const userConfirmed = window.confirm(
+        "Your session have been expired please Login again."
+      );
+      if (userConfirmed) {
+        window.location.reload();
+      }
+    }
+    const data = await response.json();
+    resolve({ data });
+  });
+}
+
+export function createSlide(slide) {
+  return new Promise(async (resolve) => {
+    const response = await fetch("/slides", {
+      method: "POST",
+      body: JSON.stringify(slide),
+      headers: { "content-type": "application/json" },
+    });
+
+    if (response.status === 401) {
+      const userConfirmed = window.confirm(
+        "Your session have been expired please Login again."
+      );
+      if (userConfirmed) {
+        window.location.reload();
+      }
+    }
+    const data = await response.json();
+    resolve({ data });
+  });
+}
+
+export function deleteSlide(slide) {
+  return new Promise(async (resolve) => {
+    const response = await fetch("/slides/" + slide, {
+      method: "DELETE",
+      headers: { "content-type": "application/json" },
+    });
+    if (response.status === 401) {
+      const userConfirmed = window.confirm(
+        "Your session have been expired please Login again."
+      );
+      if (userConfirmed) {
+        window.location.reload();
+      }
+    }
+    const data = await response.json();
+
+    resolve({ data: { id: slide } });
   });
 }

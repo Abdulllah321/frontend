@@ -2,11 +2,22 @@ import { FaRegStar, FaStar, FaStarHalfAlt } from "react-icons/fa";
 import Skeleton from "react-loading-skeleton";
 import { Link } from "react-router-dom";
 import styles from "../../../styles/productList.module.css";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { selectRating } from "../productSlice";
 import { Grid } from "react-loader-spinner";
 import { motion } from "framer-motion";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import {
+  addToWishlistAsync,
+  selectAddToWishlistStatus,
+  selectWishListItems,
+} from "../../wishlist/wishListSlice";
+import { toast } from "react-toastify";
+
+const productVariants = {
+  hidden: { opacity: 0, scale: 0.95 },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
+};
 
 const ProductGrid = ({
   status,
@@ -16,6 +27,29 @@ const ProductGrid = ({
   setModal,
 }) => {
   const rating = useSelector(selectRating);
+  const dispatch = useDispatch();
+  const [isWishlistActive, setIsWishlistActive] = useState([]);
+  const wishlist = useSelector(selectWishListItems);
+  const addToWishlistStatus = useSelector(selectAddToWishlistStatus);
+
+  useEffect(() => {
+    wishlist.forEach((wish) => {
+      setIsWishlistActive((prev) => [...prev, wish.product.id]);
+    });
+  }, [wishlist, products]);
+
+  const handleWishList = (product) => {
+    if (!isWishlistActive.includes(product._id)) {
+      dispatch(addToWishlistAsync({ product: product._id }));
+      if (addToWishlistStatus === "succeeded") {
+        toast.success(product.title + " is added successfully in the wishlist");
+      } else {
+        toast.error("Failed to add " + product.title + " to the wishlist");
+      }
+    } else {
+      toast.info(product.title + " is already in the wishlist");
+    }
+  };
 
   return (
     <div>
@@ -57,12 +91,11 @@ const ProductGrid = ({
                     className={isFlexView ? "flex gap-3 w-full" : ""}
                   >
                     <div
-                      className={
+                      className={`relative ${
                         isFlexView
-                          ? `!h-full w-1/2 md:w-[35%] min-[30%] flex items-center justify-between` +
-                            styles.imgBox
-                          : styles.imgBox
-                      }
+                          ? "h-full w-1/2 md:w-[35%] min-w-[30%] flex items-center justify-between"
+                          : ""
+                      } ${styles.imgBox}  `}
                     >
                       <img
                         src={
@@ -73,6 +106,13 @@ const ProductGrid = ({
                         alt={product.title}
                         className={styles.images}
                       />
+                      {product.stock <= 0 && (
+                        <div className="absolute inset-0 bg-black opacity-50 flex items-center justify-center z-20">
+                          <p className="text-2xl font-bold text-white text-center">
+                            out of stock
+                          </p>
+                        </div>
+                      )}
                     </div>
                     <div
                       className={
@@ -95,19 +135,6 @@ const ProductGrid = ({
                         >
                           <Link to={"/product-detail/" + product._id}>
                             {product.title || <Skeleton />}{" "}
-                            <div>
-                              {isFlexView && (
-                                <div>
-                                  {product.stock <= 0 && (
-                                    <div>
-                                      <p className="text-sm text-red-400 font-bold text-right">
-                                        (out of stock)
-                                      </p>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
-                            </div>
                           </Link>
                         </h3>
                         {isFlexView && (
@@ -151,7 +178,6 @@ const ProductGrid = ({
                               ({averageRating.toFixed(2)})
                             </span>
                           )}
-                          {/* ({formattedAverage >= 1 ? formattedAverage : 0}) */}
                         </div>
                       </div>
 
@@ -178,32 +204,6 @@ const ProductGrid = ({
                   </Link>
 
                   <div className={isFlexView ? `w-[20%] md:block hidden` : ``}>
-                    {!isFlexView && (
-                      <div
-                        className={`w-full flex items-center ${
-                          product.stock <= 0
-                            ? "justify-between"
-                            : "justify-end items-center"
-                        }`}
-                      >
-                        {product.stock <= 0 && (
-                          <div>
-                            <p className="text-sm text-red-400">out of stock</p>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {isFlexView && (
-                      <div>
-                        {product.stock <= 0 && (
-                          <div>
-                            <p className="text-sm text-red-400 font-bold text-right">
-                              (out of stock)
-                            </p>
-                          </div>
-                        )}
-                      </div>
-                    )}
                     {isFlexView && (
                       <div className="mt-4">
                         <p className="text-md font-bold text-gray-900 text-right">
@@ -224,18 +224,32 @@ const ProductGrid = ({
                       </div>
                     )}
                     {!isFlexView && (
-                      <button
-                        className="bg-custom-gradient text-white px-3 py-2 rounded-md hover:bg-blue-900 transition-colors duration-300 w-full mx-auto mt-3 bottom-0 relative"
-                        onClick={() => {
-                          if (product?.subCategory || product?.color) {
-                            setModal(product);
-                          } else {
-                            handleCart(product);
-                          }
-                        }}
-                      >
-                        Add to Cart
-                      </button>
+                      <div className="flex flex-nowrap border-t border-gray-200 mt-3 pt-3">
+                        <button
+                          className="bg-custom-gradient text-white px-3 rounded-md hover:bg-blue-900 transition-colors duration-300 w-full py-2"
+                          onClick={() => {
+                            if (product?.subCategory || product?.color) {
+                              setModal(product);
+                            } else {
+                              handleCart(product);
+                            }
+                          }}
+                        >
+                          Add to Cart
+                        </button>
+                        <div
+                          className="stage"
+                          onClick={() => handleWishList(product)}
+                        >
+                          <div
+                            className={`${
+                              isWishlistActive.includes(product._id)
+                                ? "heartIcon is-active"
+                                : "heartIcon"
+                            }`}
+                          ></div>
+                        </div>
+                      </div>
                     )}
                     {isFlexView && (
                       <button

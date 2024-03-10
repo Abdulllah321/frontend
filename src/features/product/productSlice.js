@@ -4,10 +4,12 @@ import {
   createCategory,
   createProduct,
   createRating,
+  createSlide,
   createSubCategory,
   deleteBrand,
   deleteCategory,
   deleteRating,
+  deleteSlide,
   deleteSubCategory,
   fetchBrands,
   fetchCategories,
@@ -16,6 +18,7 @@ import {
   fetchProductsByFilters,
   fetchRating,
   fetchRatingById,
+  fetchSlides,
   fetchSubCategories,
   restoreDeletedProduct,
   searchProduct,
@@ -48,6 +51,8 @@ const initialState = {
   ratingLoaded: false,
   searchSuggestion: [],
   singleProductLoaded: false,
+  slides: [],
+  slideStatus: "idle",
 };
 
 //products
@@ -61,7 +66,7 @@ export const fetchProductByIdAsync = createAsyncThunk(
 
 export const fetchProductsByFiltersAsync = createAsyncThunk(
   "product/fetchProductsByFilters",
-  async ({ filter, sort, pagination, admin, min, max, search,rating }) => {
+  async ({ filter, sort, pagination, admin, min, max, search, rating }) => {
     const response = await fetchProductsByFilters(
       filter,
       sort,
@@ -265,6 +270,30 @@ export const searchSuggestionAsync = createAsyncThunk(
       console.error("Error fetching search results:", error);
       throw error;
     }
+  }
+);
+
+//slides
+export const fetchSlidesAsync = createAsyncThunk(
+  "product/fetchSlides",
+  async () => {
+    const response = await fetchSlides();
+    return response.data;
+  }
+);
+
+export const createSlideAsync = createAsyncThunk(
+  "product/createSlide",
+  async (slide) => {
+    const response = await createSlide(slide);
+    return response.data;
+  }
+);
+export const deleteSlideAsync = createAsyncThunk(
+  "product/deleteSlide",
+  async (slide) => {
+    const response = await deleteSlide(slide);
+    return response.data;
   }
 );
 
@@ -541,7 +570,31 @@ export const productSlice = createSlice({
       .addCase(searchSuggestionAsync.fulfilled, (state, action) => {
         state.searchStatus = "idle";
         state.searchSuggestion = action.payload;
-      });
+      })
+      //slides
+      .addCase(fetchSlidesAsync.pending, (state) => {
+        state.slideStatus = "loading";
+      })
+      .addCase(fetchSlidesAsync.fulfilled, (state, action) => {
+        state.slideStatus = "idle";
+        state.slides = action.payload;
+      })
+      .addCase(createSlideAsync.pending, (state) => {
+        state.slideStatus = "loading";
+      })
+      .addCase(createSlideAsync.fulfilled, (state, action) => {
+        state.slideStatus = "idle";
+        state.slides = action.payload;
+      })     .addCase(deleteSlideAsync.pending, (state) => {
+        state.slideStatus = "loading";
+      })
+      .addCase(deleteSlideAsync.fulfilled, (state, action) => {
+        state.slideStatus = "idle";
+        const index = state.slides.findIndex(
+          (slide) => slide.id === action.payload.id
+        );
+        state.brands.splice(index, 1);
+      })
   },
 });
 
@@ -570,5 +623,6 @@ export const selectSingleProductLoaded = (state) =>
   state.product.singleProductLoaded;
 export const selectCategoriesStatus = (state) => state.product.selectCategories;
 export const selectSearchSuggestion = (state) => state.product.searchSuggestion;
+export const selectSlides = (state) => state.product.slides;
 
 export default productSlice.reducer;

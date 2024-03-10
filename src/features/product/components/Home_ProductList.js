@@ -24,11 +24,11 @@ import {
   selectAddToCartStatus,
   selectItems,
 } from "../../cart/cartSlice";
-import { useAlert } from "react-alert";
 import { ScaleLoader } from "react-spinners";
 import Skeleton from "react-loading-skeleton";
 import ProductGrid from "./ProductGrid";
 import Sliders from "./Sliders";
+import { toast } from "react-toastify"; // Added import for toast
 
 export default function HomeProductList() {
   const dispatch = useDispatch();
@@ -49,7 +49,6 @@ export default function HomeProductList() {
   const [isFlexView, setIsFlexView] = useState("grid");
   const productLoaded = useSelector(selectProductLoaded);
   const items = useSelector(selectItems);
-  const alert = useAlert();
   const selectCartStatus = useSelector(selectAddToCartStatus);
   const selectCartError = useSelector(selectAddToCartError);
 
@@ -134,7 +133,7 @@ export default function HomeProductList() {
     }
 
     if (product.stock <= 0) {
-      alert.error("Product is out of stock");
+      toast.error("Product is out of stock"); // Changed from alert.error to toast.error
       return;
     }
 
@@ -142,7 +141,7 @@ export default function HomeProductList() {
       (item) => item.product?.id === product?._id
     );
     if (itemIndex >= 0) {
-      alert.error("Item Already added");
+      toast.error("Item Already added"); // Changed from alert.error to toast.error
       return;
     }
     if (
@@ -150,11 +149,11 @@ export default function HomeProductList() {
       product.subCategory.length > 0 &&
       selectedSubCategory === ""
     ) {
-      alert.error(`Please select a ${product.subTitle}`);
+      toast.error(`Please select a ${product.subTitle}`);
       return;
     }
     if (product.colors && product.colors.length > 0 && selectedColor === "") {
-      alert.error(`Please select a color`);
+      toast.error(`Please select a color`);
       return;
     }
 
@@ -164,11 +163,12 @@ export default function HomeProductList() {
       subCategory: selectedSubCategory,
       color: selectedColor,
     };
+    
     dispatch(addToCartAsync(newItem));
     if (selectCartStatus === "idle") {
-      alert.success("Item Added to cart");
+      toast.success("Item Added to cart");
     } else if (selectCartError) {
-      alert.error("server error");
+      toast.error("server error");
     }
     setModal(false);
   };

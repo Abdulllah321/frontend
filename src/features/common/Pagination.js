@@ -3,24 +3,30 @@ import { ITEMS_PER_PAGE } from "../../app/constants";
 
 export default function Pagination({ page, setPage, handlePage, totalItems }) {
   const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+    handlePage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-3 sm:px-6">
       <div className="flex flex-1 justify-between sm:hidden">
         <div
-          onClick={(e) => handlePage(page > 1 ? page - 1 : page)}
+          onClick={(e) => handlePageChange(page > 1 ? page - 1 : page)}
           className={`relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium   ${
             page > 1
-              ? "text-white cursor-pointer bg-blue-800  border-blue-700 hover:bg-blue-700"
+              ? "text-white cursor-pointer bg-custom-gradient border-blue-700 hover:bg-blue-700"
               : "bg-gray-200 text-gray-400 cursor-not-allowed  border-gray-400"
           }`}
         >
           Previous
         </div>
         <div
-          onClick={(e) => handlePage(page < totalPages ? page + 1 : page)}
+          onClick={(e) => handlePageChange(page < totalPages ? page + 1 : page)}
           className={`relative inline-flex items-center rounded-md border px-4 py-2 text-sm font-medium ${
             page < totalPages
-              ? "text-white cursor-pointer bg-blue-800  border-blue-700 hover:bg-blue-700"
+              ? "text-white cursor-pointer bg-custom-gradient  border-blue-700 hover:bg-blue-700"
               : "bg-gray-200 text-gray-400 cursor-not-allowed  border-gray-400"
           }`}
         >
@@ -54,7 +60,7 @@ export default function Pagination({ page, setPage, handlePage, totalItems }) {
                   ? "text-gray-900 cursor-pointer"
                   : "text-gray-400 cursor-not-allowed"
               }`}
-              onClick={(e) => handlePage(page > 1 ? page - 1 : page)}
+              onClick={(e) => handlePageChange(page > 1 ? page - 1 : page)}
             >
               <span className="sr-only">Previous</span>
               <ChevronLeftIcon className="h-5 w-5" aria-hidden="true" />
@@ -64,11 +70,11 @@ export default function Pagination({ page, setPage, handlePage, totalItems }) {
             {Array.from({ length: totalPages }).map((el, index) => (
               <div
                 key={index}
-                onClick={(e) => handlePage(index + 1)}
+                onClick={(e) => handlePageChange(index + 1)}
                 aria-current="page"
                 className={`relative cursor-pointer z-10 inline-flex items-center ${
                   index + 1 === page
-                    ? "bg-blue-800 text-white"
+                    ? "bg-custom-gradient text-white"
                     : "text-gray-400"
                 } px-4 py-2 text-sm font-semibold  focus:z-20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800`}
               >
@@ -77,7 +83,7 @@ export default function Pagination({ page, setPage, handlePage, totalItems }) {
             ))}
 
             <div
-              onClick={(e) => handlePage(page < totalPages ? page + 1 : page)}
+              onClick={(e) => handlePageChange(page < totalPages ? page + 1 : page)}
               className={`relative inline-flex items-center rounded-r-md px-2 py-2 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20 focus:outline-offset-0 ${
                 page < totalPages
                   ? "text-gray-900 cursor-pointer"

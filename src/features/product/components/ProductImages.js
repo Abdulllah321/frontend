@@ -8,7 +8,7 @@ import "swiper/css/effect-fade";
 
 import { Autoplay, Navigation, Keyboard, Pagination } from "swiper/modules";
 import { FaTimes } from "react-icons/fa";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { useState } from "react";
 
@@ -44,42 +44,51 @@ export default function ProductImages({ product }) {
   return (
     <div className="mt-4">
       {window.innerWidth > 1024 ? renderImages() : smallScreen()}
+      <AnimatePresence>
+        {large !== "" && (
+          <div className="fixed w-screen h-screen top-0 left-0 z-30">
+            <motion.div
+              className={`mx-auto mt-6 lg:px-8 overflow-hidden fixed w-screen h-screen -top-[24px] left-0 bg-black/70`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLarge("")}
+            />
+            <motion.img
+              src={large}
+              alt={product.title}
+              className={`object-cover object-center transition max-w-[80%] w-auto min-w-[50%] h-auto absolute`}
+              initial={{
+                scale: 0.5,
+                translateX: "-50%",
+                translateY: "-50%",
+                top: "80%",
+                opacity: 0,
+                left: "50%",
+              }}
+              animate={{
+                scale: 1,
+                translateX: "-50%",
+                translateY: "-50%",
+                top: "50%",
+                left: "50%",
+                opacity: 1,
+              }}
+              exit={{
+                scale: 0.7,
+                opacity: 0,
+                top: "80%",
+              }}
+              transition={{ duration: 0.2 }}
+            />
 
-      {large !== "" && (
-        <div className="fixed w-screen h-screen top-0 left-0 z-30">
-          <motion.div
-            className={`mx-auto mt-6 lg:px-8 overflow-hidden fixed w-screen h-screen -top-[24px] left-0 bg-black/70`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            onClick={() => setLarge("")}
-          />
-          <motion.img
-            src={large}
-            alt={product.title}
-            className={`object-cover object-center transition max-w-[80%] w-auto min-w-[50%] h-auto absolute`}
-            initial={{
-              scale: 0,
-              translateX: "0%",
-              translateY: "0%",
-              top: "0%",
-              left: "0%",
-            }}
-            animate={{
-              scale: 1,
-              translateX: "-50%",
-              translateY: "-50%",
-              top: "50%",
-              left: "50%",
-            }}
-            transition={{ duration: 0.2 }}
-          />
-
-          <FaTimes
-            className="text-white top-8 right-14 text-3xl absolute cursor-pointer"
-            onClick={() => setLarge("")}
-          />
-        </div>
-      )}
+            <FaTimes
+              className="text-white top-8 right-14 text-3xl absolute cursor-pointer"
+              onClick={() => setLarge("")}
+            />
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -671,9 +680,9 @@ function BulkImagesSmall({ product }) {
 
       {fullscreen && (
         <motion.div
-        initial={{scale: 0}}
-        animate={{scale:1}}
-        className="top-0 left-0 bg-black/70 w-screen h-screen fixed z-20"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          className="top-0 left-0 bg-black/70 w-screen h-screen fixed z-20"
         >
           <Swiper
             {...swiperParamsLarger}

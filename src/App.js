@@ -1,4 +1,5 @@
 import "./App.css";
+import "./features/navbar/navbar.css";
 
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { lazy, Suspense, useEffect } from "react";
@@ -17,6 +18,10 @@ import Logout from "./features/auth/components/Logout";
 import { HashLoader } from "react-spinners";
 import ProtectedAdmin from "./features/auth/components/ProtectedAdmin";
 import { SkeletonTheme } from "react-loading-skeleton";
+import FlashSales from "./features/product/components/FlashSales";
+import { fetchWishlistItemsByUserIdAsync } from "./features/wishlist/wishListSlice";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = lazy(() => import("./pages/Home"));
 const LoginPage = lazy(() => import("./pages/LoginPage"));
@@ -39,13 +44,18 @@ const AdminCategoryBrand = lazy(() => import("./pages/AdminCategoryBrand"));
 const AllUsersPage = lazy(() => import("./pages/AllUsersPage"));
 const ResetPasswordPage = lazy(() => import("./pages/ResetPasswordPage"));
 const Categories = lazy(() => import("./pages/Categories"));
-const SearchResults = lazy(() => import("./features/product/components/SearchResults"));
+const SearchResults = lazy(() =>
+  import("./features/product/components/SearchResults")
+);
 const ShopPage = lazy(() => import("./pages/ShopPage"));
-
+const AdminSliders = lazy(() =>
+  import("./features/admin/components/AdminSliders")
+);
+const WishlistPage = lazy(() => import("./pages/WishListPage"));
 
 const options = {
   timeout: 5000,
-  position: positions.BOTTOM_LEFT,
+  position: positions.BOTTOM_CENTER,
 };
 
 const router = createBrowserRouter([
@@ -58,7 +68,7 @@ const router = createBrowserRouter([
     ),
   },
   {
-    path: "/admin",
+    path: "/admin/products",
     element: (
       <ProtectedAdmin>
         <AdminHome></AdminHome>
@@ -78,6 +88,14 @@ const router = createBrowserRouter([
     element: (
       <Protected>
         <CartPage></CartPage>
+      </Protected>
+    ),
+  },
+  {
+    path: "/wishlists",
+    element: (
+      <Protected>
+        <WishlistPage></WishlistPage>
       </Protected>
     ),
   },
@@ -126,6 +144,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedAdmin>
         <AdminProductFormPage></AdminProductFormPage>
+      </ProtectedAdmin>
+    ),
+  },
+  {
+    path: "/admin/sliders",
+    element: (
+      <ProtectedAdmin>
+        <AdminSliders></AdminSliders>
       </ProtectedAdmin>
     ),
   },
@@ -195,6 +221,14 @@ const router = createBrowserRouter([
     ),
   },
   {
+    path: "/admin/flash-sales",
+    element: (
+      <ProtectedAdmin>
+        <FlashSales></FlashSales>{" "}
+      </ProtectedAdmin>
+    ),
+  },
+  {
     path: "/logout",
     element: <Logout></Logout>,
   },
@@ -235,6 +269,7 @@ function App() {
   useEffect(() => {
     if (user) {
       dispatch(fetchItemsByUserIdAsync());
+      dispatch(fetchWishlistItemsByUserIdAsync());
       dispatch(fetchLoggedInUserAsync());
     }
   }, [dispatch, user]);
@@ -257,6 +292,18 @@ function App() {
                 }
               >
                 <RouterProvider router={router} />
+                <ToastContainer
+                  position="bottom-center"
+                  autoClose={3000}
+                  hideProgressBar={false}
+                  newestOnTop={true}
+                  closeOnClick
+                  rtl={false}
+                  pauseOnFocusLoss
+                  draggable
+                  pauseOnHover
+                  theme="dark"
+                />
               </Suspense>
             </SkeletonTheme>
           </Provider>

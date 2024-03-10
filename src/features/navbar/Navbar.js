@@ -6,24 +6,26 @@ import {
   XMarkIcon,
 } from "@heroicons/react/24/outline";
 import { Link, useLocation } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { selectItems } from "../cart/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchItemsByUserIdAsync, selectItems } from "../cart/cartSlice";
 import { selectUserInfo } from "../user/userSlice";
 import Search from "../product/components/Search";
 import Logo from "../../images/logoBlueWithoutBg.png";
 import Headroom from "react-headroom";
+import AdminNav from "./AdminNav";
+import { FaRegHeart } from "react-icons/fa";
+import {
+  fetchWishlistItemsByUserIdAsync,
+  selectWishListItems,
+} from "../wishlist/wishListSlice";
 
 const navigation = [
-  { name: "Products", link: "/", user: true },
-  { name: "Products", link: "/", admin: true },
-  { name: "Categories", link: "/categories", user: true },
-  { name: "Categories", link: "/categories", admin: true },
+  { name: "Home", link: "/", user: true },
+  { name: "Home", link: "/", admin: true },
   { name: "Shop", link: "/shop", user: true },
   { name: "Shop", link: "/shop", admin: true },
-  { name: "AdminProducts", link: "/admin", admin: true },
-  { name: "Orders", link: "/admin/orders", admin: true },
-  { name: "category & brands", link: "/admin/category_&_brand", admin: true },
-  { name: "All-users", link: "/admin/all-users", admin: true },
+  { name: "Categories", link: "/categories", user: true },
+  { name: "Categories", link: "/categories", admin: true },
 ];
 const userNavigation = [
   { name: "My Profile", link: "/profile" },
@@ -36,17 +38,19 @@ function classNames(...classes) {
 }
 
 function NavBar({ children }) {
+  const dispatch = useDispatch();
   const items = useSelector(selectItems);
+  const wishlistItem = useSelector(selectWishListItems) || [];
+
   const userInfo = useSelector(selectUserInfo);
   const location = useLocation();
 
   const [randomBackgroundColors, setRandomBackgroundColors] = useState([]);
 
   useEffect(() => {
-    // Define a mapping of colors for each letter
     const letterColors = {
-      a: "#8484B7", // Vivid Tangerine
-      b: "#C70039", // Imperial Red
+      a: "#8484B7",
+      b: "#C70039",
       c: "#FFC300", // Vivid Gamboge
       d: "#FF5733", // Same as a (Vivid Tangerine)
       e: "#FFD700", // Gold
@@ -156,14 +160,27 @@ function NavBar({ children }) {
                       </div>
                       <div className="hidden md:block">
                         <div className="ml-4 flex items-center md:ml-6">
+                          <Link to="/wishlists">
+                            <button
+                              type="button"
+                              className="rounded-full bg-transparent p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-800"
+                            >
+                              <span className="sr-only">View WishList</span>
+                              <FaRegHeart className="h-6 w-6" />
+                            </button>
+                          </Link>
+                          {wishlistItem.length > 0 && (
+                            <span className="inline-flex items-center rounded-full mb-7 -ml-3 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/10 text-bold">
+                              {wishlistItem.length}
+                            </span>
+                          )}
+
                           <Link to="/cart">
                             <button
                               type="button"
-                              className="rounded-full bg-custom-gradient p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
+                              className="rounded-full bg-transparent p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-800"
                             >
-                              <span className="sr-only">
-                                View notifications
-                              </span>
+                              <span className="sr-only">View Cart</span>
                               <ShoppingCartIcon
                                 className="h-6 w-6"
                                 aria-hidden="true"
@@ -171,7 +188,7 @@ function NavBar({ children }) {
                             </button>
                           </Link>
                           {items.length > 0 && (
-                            <span className="inline-flex items-center rounded-md mb-7 -ml-3 bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10 text-bold">
+                            <span className="inline-flex items-center rounded-full mb-7 -ml-3 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700 ring-1 ring-inset ring-blue-600/10 text-bold">
                               {items.length}
                             </span>
                           )}
@@ -371,17 +388,17 @@ function NavBar({ children }) {
             </Disclosure>
           </Headroom>
 
+          {userInfo && userInfo.role === "admin" && <AdminNav />}
           <div className={`relative pt-2`}>
             <Search />
-
-            <header className="bg-white shadow">
+            <header className="bg-white shadow-sm">
               <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-                <h1 className="text-4xl font-bold tracking-tight text-gradient bg-custom-gradient ml-6">
+                <h1 className="text-4xl font-bold tracking-tight text-gradient bg-custom-gradient ml-6 px-[20px]">
                   E-Commerce
                 </h1>
               </div>
             </header>
-            <main>
+            <main className="ml-[60px]">
               <div className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8 min-h-screen">
                 {children}
               </div>

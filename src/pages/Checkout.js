@@ -32,6 +32,7 @@ function Checkout() {
   const currentOrder = useSelector(selectCurrentOrder);
   const cartLoaded = useSelector(selectCartLoaded);
   const alert = useAlert();
+  const [additionalMessage, setAdditionalMessage] = useState("");
   const totalAmount = items.reduce(
     (amount, item) => discountedPrice(item.product) * item.quantity + amount,
     0
@@ -69,11 +70,11 @@ function Checkout() {
         user: userInfo.id,
         paymentMethod,
         selectedAddress,
-        status: "pending", // other status can be delivered, received.
+        additionalMessage,
+        status: "pending", 
       };
 
       dispatch(createOrderAsync(order));
-      // need to redirect from here to a new page of order success.
     } else {
       // TODO : we can use proper messaging popup here
       alert.error("Enter Address and Payment method");
@@ -102,7 +103,7 @@ function Checkout() {
           <div className="lg:col-span-3">
             {/* This form is for address */}
             <form
-              className="bg-white px-5 py-12 mt-12"
+              className="bg-white px-5 py-12 mt-12 shadow-sm"
               noValidate
               onSubmit={handleSubmit((data) => {
                 // console.log(data);
@@ -297,7 +298,7 @@ function Checkout() {
                   </button>
                   <button
                     type="submit"
-                    className="rounded-md bg-blue-800 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
+                    className="rounded-md bg-custom-gradient px-3 py-2 text-sm font-semibold text-white shadow-sm hover:opacity-80 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-800"
                   >
                     Add Address
                   </button>
@@ -305,54 +306,55 @@ function Checkout() {
               </div>
             </form>
             <div className="border-b border-gray-900/10 pb-12">
-              <h2 className="text-base font-semibold leading-7 text-gray-900">
-                Addresses
-              </h2>
-              <p className="mt-1 text-sm leading-6 text-gray-600">
-                Choose from Existing addresses
-              </p>
-              <label htmlFor="address">
-                <ul>
-                  {userInfo?.addresses.map((address, index) => (
-                    <li
-                      key={index}
-                      className="flex justify-between gap-x-6 px-5 py-5 border-solid border-2 border-gray-200"
-                    >
-                      <div className="flex gap-x-4">
-                        <input
-                          onChange={handleAddress}
-                          name="address"
-                          id="address"
-                          type="radio"
-                          value={index}
-                          className="h-4 w-4 border-gray-300 text-blue-800 focus:ring-blue-800 mt-2"
-                        />
-                        <div className="min-w-0 flex-auto">
-                          <p className="text-sm font-semibold leading-6 text-gray-900">
-                            {address.name}
+              <div className="bg-white px-5 py-12 mt-12 shadow-sm">
+                <h2 className="text-base font-semibold leading-7 text-gray-900">
+                  Addresses
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-gray-600 mb-2">
+                  Choose from Existing addresses
+                </p>
+                <label htmlFor="address">
+                  <ul>
+                    {userInfo?.addresses.map((address, index) => (
+                      <li
+                        key={index}
+                        className="flex justify-between gap-x-6 px-5 py-5 border-solid border-t  border-gray-200 bg-white mt-2"
+                      >
+                        <div className="flex gap-x-4">
+                          <input
+                            onChange={handleAddress}
+                            name="address"
+                            id="address"
+                            type="radio"
+                            value={index}
+                            className="h-4 w-4 border-gray-300 text-blue-800 focus:ring-blue-800 mt-2"
+                          />
+                          <div className="min-w-0 flex-auto">
+                            <p className="text-sm font-semibold leading-6 text-gray-900">
+                              {address.name}
+                            </p>
+                            <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                              {address.street}
+                            </p>
+                            <p className="mt-1 truncate text-xs leading-5 text-gray-500">
+                              {address.pinCode}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="hidden sm:flex sm:flex-col sm:items-end">
+                          <p className="text-sm leading-6 text-gray-900">
+                            Phone: {address.phone}
                           </p>
-                          <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                            {address.street}
-                          </p>
-                          <p className="mt-1 truncate text-xs leading-5 text-gray-500">
-                            {address.pinCode}
+                          <p className="text-sm leading-6 text-gray-500">
+                            {address.city}
                           </p>
                         </div>
-                      </div>
-                      <div className="hidden sm:flex sm:flex-col sm:items-end">
-                        <p className="text-sm leading-6 text-gray-900">
-                          Phone: {address.phone}
-                        </p>
-                        <p className="text-sm leading-6 text-gray-500">
-                          {address.city}
-                        </p>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              </label>
-
-              <div className="mt-10 space-y-10">
+                      </li>
+                    ))}
+                  </ul>
+                </label>
+              </div>
+              <div className="space-y-10 bg-white px-5 py-12 mt-12 shadow-sm">
                 <fieldset>
                   <legend className="text-sm font-semibold leading-6 text-gray-900">
                     Payment Methods
@@ -375,7 +377,7 @@ function Checkout() {
                         htmlFor="cash"
                         className="block text-sm font-medium leading-6 text-gray-900"
                       >
-                        Cash
+                        Cash on delivery
                       </label>
                     </div>
                     <div
@@ -403,6 +405,22 @@ function Checkout() {
                     </div>
                   </div>
                 </fieldset>
+              </div>
+
+              <div className="bg-white px-5 py-12 mt-12 shadow-sm">
+                <label
+                  htmlFor="additional"
+                  className="block text-sm font-medium leading-6 text-gray-900 mb-2 mx-1"
+                >
+                  Additional Message(optional)
+                </label>
+                <textarea
+                  placeholder="Enter your message here"
+                  id="additional"
+                  rows={4}
+                  onChange={(e) => setAdditionalMessage(e.target.value)}
+                  className="block w-full rounded-sm border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-800 sm:text-sm sm:leading-6"
+                ></textarea>
               </div>
             </div>
           </div>
@@ -538,7 +556,7 @@ function Checkout() {
                 <div className="mt-6">
                   <div
                     onClick={handleOrder}
-                    className="flex cursor-pointer items-center justify-center rounded-md border border-transparent bg-blue-800 px-6 py-3 text-base font-medium text-white shadow-sm hover:bg-blue-700"
+                    className="flex cursor-pointer items-center justify-center rounded-md border border-transparent bg-custom-gradient px-6 py-3 text-base font-medium text-white shadow-sm hover:opacity-80"
                   >
                     Order Now
                   </div>

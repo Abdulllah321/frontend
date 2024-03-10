@@ -188,13 +188,11 @@ function ProductForm() {
     const updatedImages = combinedImages.filter((_, i) => i !== index);
     setCombinedImages(updatedImages);
 
-    // Update selectedProduct.images with modified images
     const updatedProductImages = selectedProduct.images.filter(
       (_, i) => i !== index
     );
     const updatedProduct = { ...selectedProduct, images: updatedProductImages };
 
-    // Dispatch action to update the product in the backend
     dispatch(updateProductAsync(updatedProduct))
       .then(() => {
         alert.success("Image Deleted Successfully");
